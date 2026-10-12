@@ -179,6 +179,9 @@ label.inline { display: flex; gap: 6px; align-items: center; margin-top: 10px; c
 
 @media (max-width: 600px) {
   header, main { padding-left: 16px; padding-right: 16px; }
+  /* En móvil la parte derecha va siempre en su propia línea: así la cabecera no cambia de alto
+     cuando llegan 'Modo simulado' y la hora (antes desplazaba toda la página, CLS) */
+  .header-right { flex-basis: 100%; min-height: var(--control-h-sm); }
   .error { margin: 16px 16px 0; }
 }
 
