@@ -184,13 +184,11 @@ function renderHostsSummary() {
   const unknown = active.filter((h) => !h.known);
   const blocked = hostsCache.filter((h) => h.block === "always").length;
   $("#hosts-count").textContent = `${active.length} conectados`;
-  $("#hosts-extra").textContent = [unknown.length ? `${unknown.length} sin revisar` : "Todos revisados", blocked ? `${blocked} bloqueados` : null].filter(Boolean).join(" · ");
-  const alert = $("#unknown-alert");
-  alert.hidden = !unknown.length;
-  alert.innerHTML = unknown.length
-    ? `Hay <b>${unknown.length}</b> dispositivo(s) conectados que aún no has marcado como conocidos. <button class="small" data-goto="dispositivos">Revisar</button>`
-    : "";
-  alert.querySelector("button")?.addEventListener("click", () => { location.hash = "dispositivos"; });
+  // Los aparatos sin revisar se resaltan en la propia tarjeta: un aviso aparte
+  // aparecía después de cargar y desplazaba todo lo de debajo (CLS)
+  const extra = $("#hosts-extra");
+  extra.textContent = [unknown.length ? `${unknown.length} sin revisar` : "Todos revisados", blocked ? `${blocked} bloqueados` : null].filter(Boolean).join(" · ");
+  extra.classList.toggle("attention", unknown.length > 0);
 }
 
 function blockPill(h) {

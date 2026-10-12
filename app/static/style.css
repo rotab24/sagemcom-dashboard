@@ -55,6 +55,8 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; display: flex
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: 12px; }
 .card, .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
 .big { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* La línea de detalle de cada tarjeta llega con los datos: se reserva su alto para que no salte nada (CLS) */
+.card > .small { min-height: 1.45em; }
 .grid2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
 @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
 /* Sin esto una tabla con nowrap ensancha la columna y la página se sale del ancho */
@@ -84,6 +86,7 @@ tr.inactive td { color: var(--muted); }
 .badge.warn { color: var(--warn); background: var(--warn-bg); border-color: transparent; }
 .badge.new { color: var(--warn); background: var(--warn-bg); border-color: transparent; margin-left: 6px; }
 .ok { color: var(--ok); } .bad { color: var(--bad); }
+.attention { color: var(--warn); font-weight: 600; }
 
 .list { list-style: none; margin: 0 0 16px; padding: 0; }
 .list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
