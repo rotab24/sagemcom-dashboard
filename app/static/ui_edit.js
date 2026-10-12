@@ -1,7 +1,9 @@
-// ---- modo edición de la interfaz (botón ✎ o Ctrl+E) -------------------------------------------
-// Se carga antes que el resto: envuelve cada texto fijo de la página en <span class="ui-text">
-// con una clave estable ("<id de la sección>|<texto original>") y aplica los textos guardados
-// en data/texts.json. Los datos que pintan los demás scripts (tablas, listas…) no se tocan.
+// ---- modo edición de la interfaz (botón Editar o Ctrl+E) ---------------------------------------
+// Se carga antes que el resto: anota cada texto fijo de la página con una clave estable
+// ("<id de la sección>|<texto original>") y aplica los textos guardados en data/texts.json.
+// Los textos solo se envuelven en <span class="ui-text"> al entrar en modo edición la primera
+// vez: hacerlo al cargar costaba una tarea larga en cada visita para algo que casi nunca se usa.
+// Los datos que pintan los demás scripts (tablas, listas…) no se tocan.
 
 (() => {
   const custom = window.UI_CUSTOM || { texts: {}, theme: { light: {}, dark: {}, font_size: null, zoom: null } };
@@ -11,26 +13,39 @@
   const clean = (s) => s.replace(/\s+/g, " ").trim();
   const scopeOf = (el) => el.closest("[id]")?.id || "page";
 
-  // ---- marcar los textos fijos -----------------------------------------------------------------
+  // ---- anotar los textos fijos (sin tocar el DOM) ------------------------------------------------
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
     acceptNode: (n) => (clean(n.nodeValue) && n.parentElement && !n.parentElement.closest(SKIP)
       ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
   });
-  const nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  for (const n of nodes) {
+  const registry = []; // {node, key, orig, lead, trail, shown}
+  while (walker.nextNode()) {
+    const n = walker.currentNode;
     const [, lead, core, trail] = n.nodeValue.match(/^(\s*)([\s\S]*?)(\s*)$/);
-    const span = document.createElement("span");
-    span.className = "ui-text";
-    span.dataset.orig = clean(core);
-    span.dataset.k = `${scopeOf(n.parentElement)}|${span.dataset.orig}`;
-    span.textContent = core;
-    const frag = document.createDocumentFragment();
-    if (lead) frag.append(lead);
-    frag.append(span);
-    if (trail) frag.append(trail);
-    n.replaceWith(frag);
+    const orig = clean(core);
+    registry.push({ node: n, key: `${scopeOf(n.parentElement)}|${orig}`, orig, lead, trail, shown: n.nodeValue });
   }
+  let wrapped = false;
+
+  // Al entrar en modo edición: cada texto anotado que no haya cambiado otro script pasa a ser un span
+  function wrapTexts() {
+    if (wrapped) return;
+    wrapped = true;
+    for (const r of registry) {
+      if (!r.node.isConnected || r.node.nodeValue !== r.shown) continue; // ya lo ha reescrito la app: es un dato
+      const span = document.createElement("span");
+      span.className = "ui-text" + (texts[r.key] != null ? " custom" : "");
+      span.dataset.orig = r.orig;
+      span.dataset.k = r.key;
+      span.textContent = r.node.nodeValue.slice(r.lead.length, r.node.nodeValue.length - r.trail.length);
+      const frag = document.createDocumentFragment();
+      if (r.lead) frag.append(r.lead);
+      frag.append(span);
+      if (r.trail) frag.append(r.trail);
+      r.node.replaceWith(frag);
+    }
+  }
+
   document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach((el) => {
     if (el.closest("[data-noedit]")) return;
     el.dataset.phOrig = el.placeholder;
@@ -38,6 +53,12 @@
   });
 
   function applyText(key, value) {
+    if (!wrapped) {
+      for (const r of registry) {
+        if (r.key !== key || !r.node.isConnected || r.node.nodeValue !== r.shown) continue;
+        r.shown = r.node.nodeValue = r.lead + (value ?? r.orig) + r.trail;
+      }
+    }
     document.querySelectorAll(`.ui-text[data-k="${CSS.escape(key)}"]`).forEach((s) => {
       s.textContent = value ?? s.dataset.orig;
       s.classList.toggle("custom", value != null);
@@ -197,6 +218,7 @@
   let current = null; // {key, input, target}
 
   function setEditing(on) {
+    if (on) wrapTexts();
     if (!on && current) finishEdit(true);
     editing = on;
     document.body.classList.toggle("ui-editing", on);
