@@ -87,7 +87,7 @@ header {
 }
 h1 { margin: 0; font-size: var(--fs-xl); }
 h2 { margin: 0 0 12px; font-size: var(--fs-lg); }
-.card-title, h3 { margin: 0 0 6px; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.card-title, h3 { margin: 0 0 6px; font-size: var(--fs-sm); font-weight: 500; color: var(--muted); }
 .muted { color: var(--muted); }
 .small { font-size: var(--fs-xs); }
 .header-right { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); align-items: center; }
@@ -313,7 +313,7 @@ textarea { font: var(--fs-xs) var(--font-mono); color: var(--text); background: 
 .add-box { margin-top: 12px; }
 .add-box summary { cursor: pointer; color: var(--accent); margin-bottom: 10px; }
 .mt { margin-top: 16px; }
-h3.mt { font-size: var(--fs-sm); color: var(--text); text-transform: none; letter-spacing: 0; }
+h3.mt { color: var(--text); }
 #fw-form .inline { margin: 6px 0; }
 .tabs { scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
@@ -412,4 +412,4 @@ main:focus { outline: none; }
 
 /* iconos SVG en línea: heredan color y tamaño del texto */
 .icon { width: 1em; height: 1em; vertical-align: -0.125em; flex: none; }
-button .icon:only-child { display: block; }
+.icon-btn .icon, #host-filters-clear .icon { display: block; } /* botones de solo icono */

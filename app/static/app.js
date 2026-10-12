@@ -113,7 +113,7 @@ async function loadStatus() {
   const s = await api("/api/status");
   const d = s.device, w = s.wan, g = s.gpon;
   $("#model").textContent = d.model || "Sagemcom";
-  $("#subtitle").textContent = `${s.host} · firmware ${d.software || "?"}`;
+  $("#subtitle").textContent = `${s.host}, firmware ${d.software || "?"}`;
   $("#mock-badge").hidden = !s.mock;
   $("#wan-status").innerHTML = w.up ? '<span class="ok">Conectado</span>' : `<span class="bad">${esc(w.status || "Caído")}</span>`;
   $("#wan-ip").textContent = w.ipv4 ? `IP pública ${w.ipv4}` : "";
@@ -124,9 +124,9 @@ async function loadStatus() {
   }
   $("#gpon-rx").innerHTML = fibra;
   $("#gpon-extra").textContent = [g.rx_dbm != null ? (g.rx_dbm > -27 && g.rx_dbm < -8 ? "Señal correcta" : "Señal fuera de rango") : null,
-    g.temperature != null ? `${g.temperature} °C` : null].filter(Boolean).join(" · ");
+    g.temperature != null ? `${g.temperature} °C` : null].filter(Boolean).join(", ");
   $("#uptime").textContent = fmtUptime(d.uptime);
-  $("#mem").textContent = d.mem_used_pct != null ? `Encendido · memoria ${d.mem_used_pct} %` : "Encendido";
+  $("#mem").textContent = d.mem_used_pct != null ? `Memoria en uso: ${d.mem_used_pct} %` : "Encendido";
   $("#updated").textContent = `Actualizado ${new Date().toLocaleTimeString("es-ES")}`;
 }
 
@@ -195,7 +195,7 @@ function renderHostsSummary() {
   // Los aparatos sin revisar se resaltan en la propia tarjeta: un aviso aparte
   // aparecía después de cargar y desplazaba todo lo de debajo (CLS)
   const extra = $("#hosts-extra");
-  extra.textContent = [unknown.length ? `${unknown.length} sin revisar` : "Todos revisados", blocked ? `${blocked} bloqueados` : null].filter(Boolean).join(" · ");
+  extra.textContent = [unknown.length ? `${unknown.length} sin revisar` : "Todos revisados", blocked ? `${blocked} bloqueados` : null].filter(Boolean).join(", ");
   extra.classList.toggle("attention", unknown.length > 0);
 }
 
@@ -704,7 +704,7 @@ function openDevice(h, focus) {
   deviceEditing = h;
   editingUid = h.uid; // que la recarga periódica no cambie la tabla por debajo
   $("#device-title").textContent = h.name;
-  $("#device-sub").textContent = [h.mac, h.ip || "sin IP", h.interface, h.detected_type && `detectado como ${h.detected_type}`].filter(Boolean).join(" · ");
+  $("#device-sub").textContent = [h.mac, h.ip || "sin IP", h.interface, h.detected_type && `detectado como ${h.detected_type}`].filter(Boolean).join(", ");
   dfield("name").value = h.custom_name ? h.name : "";
   dfield("name").placeholder = h.name;
   dfield("type").value = h.user_type;
@@ -826,7 +826,7 @@ async function openSchedule(h) {
     return;
   }
   openScheduleEditor({
-    title: `Horario sin Internet · ${h.name}`,
+    title: `Horario sin Internet de ${h.name}`,
     grid,
     onSave: async (g) => {
       const ok = await act(() => api(`/api/hosts/${h.uid}/schedule`, { method: "PUT", body: { grid: g } }), "Horario guardado");
@@ -904,7 +904,7 @@ async function loadWifi() {
       <div class="head">
         <div>
           <h2>${esc(n.ssid)}</h2>
-          <div class="muted small">${n.guest ? "Invitados · " : "Principal · "}${esc(n.band)} · ${n.enabled ? '<span class="ok">emitiendo</span>' : "apagada"}</div>
+          <div class="muted small">${n.guest ? "Invitados, " : "Principal, "}${esc(n.band)}, ${n.enabled ? '<span class="ok">emitiendo</span>' : "apagada"}</div>
         </div>
         <label class="switch" title="Encender/apagar esta red"><input type="checkbox" data-act="toggle" ${n.enabled ? "checked" : ""} aria-label="Red ${esc(n.ssid)} encendida"><span></span></label>
       </div>
@@ -925,7 +925,7 @@ async function loadWifi() {
   $("#radios").innerHTML = d.radios.map((r) => `
     <div class="radio-box" data-radio="${esc(r.alias)}">
       <strong>${esc(r.band)}</strong>
-      <div class="muted small">Canal actual ${r.channel ?? "?"} · ancho ${esc(r.bandwidth)} · ${esc(r.standards)}</div>
+      <div class="muted small">Canal ${r.channel ?? "?"}, ancho ${esc(r.bandwidth)}, ${esc(r.standards)}</div>
       <div class="row" style="margin-top:8px">
         <select data-act="channel" aria-label="Canal ${esc(r.band)}">
           <option value="auto" ${r.auto_channel ? "selected" : ""}>Automático</option>
