@@ -839,13 +839,28 @@ async function openSchedule(h) {
   });
 }
 
+// Casilla con el foco del teclado (una sola es tabulable: flechas para moverse)
+let schedFocus = { d: 0, h: 0 };
+
 function drawSchedule() {
+  const hadFocus = $("#schedule-grid").contains(document.activeElement);
+  const off = $("#legend-off").textContent;
   let html = "<tr><th></th>" + Array.from({ length: 24 }, (_, i) => `<th>${i}</th>`).join("") + "</tr>";
-  for (const d of DAYS) {
+  DAYS.forEach((d, di) => {
     html += `<tr><th class="day">${DAY_NAMES[d]}</th>` +
-      scheduleGrid[d].map((v, h) => `<td data-day="${d}" data-h="${h}" class="${v ? "denied" : ""}" title="${DAY_NAMES[d]} ${h}:00–${h + 1}:00"></td>`).join("") + "</tr>";
-  }
+      scheduleGrid[d].map((v, h) => `<td data-day="${d}" data-h="${h}" class="${v ? "denied" : ""}" role="checkbox"
+        aria-checked="${v}" aria-label="${DAY_NAMES[d]} ${h}:00–${h + 1}:00, ${esc(off)}" title="${DAY_NAMES[d]} ${h}:00–${h + 1}:00"
+        tabindex="${di === schedFocus.d && h === schedFocus.h ? 0 : -1}"></td>`).join("") + "</tr>";
+  });
   $("#schedule-grid").innerHTML = html;
+  if (hadFocus) focusScheduleCell();
+}
+
+function focusScheduleCell() {
+  const td = $(`#schedule-grid td[data-day="${DAYS[schedFocus.d]}"][data-h="${schedFocus.h}"]`);
+  $("#schedule-grid").querySelectorAll('td[tabindex="0"]').forEach((c) => { c.tabIndex = -1; });
+  td.tabIndex = 0;
+  td.focus();
 }
 
 let painting = null; // valor que se está "pintando" al arrastrar
@@ -866,7 +881,29 @@ window.addEventListener("pointerup", () => { painting = null; });
 function paint(td) {
   scheduleGrid[td.dataset.day][td.dataset.h] = painting;
   td.classList.toggle("denied", painting);
+  td.setAttribute("aria-checked", String(painting));
 }
+
+grid.addEventListener("keydown", (e) => {
+  const td = e.target.closest("td[data-day]");
+  if (!td) return;
+  const moves = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0] };
+  schedFocus = { d: DAYS.indexOf(td.dataset.day), h: Number(td.dataset.h) };
+  if (moves[e.key]) {
+    schedFocus.d = Math.min(DAYS.length - 1, Math.max(0, schedFocus.d + moves[e.key][0]));
+    schedFocus.h = Math.min(23, Math.max(0, schedFocus.h + moves[e.key][1]));
+  } else if (e.key === "Home" || e.key === "End") {
+    schedFocus.h = e.key === "Home" ? 0 : 23;
+  } else if (e.key === " " || e.key === "Enter") {
+    painting = !scheduleGrid[td.dataset.day][td.dataset.h];
+    paint(td);
+    painting = null;
+  } else {
+    return;
+  }
+  e.preventDefault();
+  focusScheduleCell();
+});
 
 document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
   for (const d of DAYS) {

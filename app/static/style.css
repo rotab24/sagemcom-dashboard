@@ -263,6 +263,7 @@ table.schedule th { font-size: var(--fs-2xs); padding: 0 2px; text-align: center
 table.schedule th.day { text-align: right; padding-right: 8px; white-space: nowrap; }
 table.schedule td { width: 26px; height: 24px; padding: 0; border: none; border-radius: var(--r-sm); background: var(--allowed); cursor: pointer; }
 table.schedule td.denied { background: var(--danger); }
+table.schedule td:focus-visible { outline-offset: 1px; }
 .cell-demo { display: inline-block; width: 12px; height: 12px; border-radius: var(--r-sm); background: var(--allowed); border: 1px solid var(--border); vertical-align: middle; }
 .cell-demo.denied { background: var(--danger); }
 
