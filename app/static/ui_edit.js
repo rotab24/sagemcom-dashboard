@@ -69,7 +69,7 @@
   const COLORS = [
     ["--bg", "Fondo"], ["--surface", "Paneles"], ["--text", "Texto"], ["--muted", "Texto secundario"],
     ["--border", "Bordes"], ["--accent", "Acento (botones, enlaces)"], ["--ok", "Correcto"], ["--warn", "Aviso"],
-    ["--denied", "Peligro / bloqueado"], ["--rx", "Gráfica: bajada"], ["--tx", "Gráfica: subida"],
+    ["--danger", "Peligro / bloqueado"], ["--rx", "Gráfica: bajada"], ["--tx", "Gráfica: subida"],
   ];
   const dark = () => matchMedia("(prefers-color-scheme: dark)").matches;
   const toHex = (() => {
@@ -149,7 +149,6 @@
     if (el.dataset.uiColor) {
       const scheme = dark() ? "dark" : "light";
       theme[scheme] = { ...theme[scheme], [el.dataset.uiColor]: el.value };
-      if (el.dataset.uiColor === "--denied") theme[scheme]["--bad"] = el.value; // los dos rojos van juntos
       el.closest("label").classList.add("changed");
       themeChanged();
     } else if (el.dataset.uiSize) {

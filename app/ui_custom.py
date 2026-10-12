@@ -26,7 +26,7 @@ api = APIRouter(prefix="/api/ui", tags=["interfaz"])
 
 STATIC = Path(__file__).parent / "static"
 COLOR_VARS = {"--bg", "--surface", "--text", "--muted", "--border", "--accent", "--ok", "--warn",
-              "--denied", "--bad", "--rx", "--tx", "--code-bg", "--primary-text", "--warn-bg"}
+              "--danger", "--danger-soft", "--allowed", "--rx", "--tx", "--code-bg", "--primary-text", "--warn-bg"}
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 MAX_TEXTS = 3000
 _lock = threading.Lock()

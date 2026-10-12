@@ -39,7 +39,7 @@ async function loadFiberChart() {
   for (const v of [Math.ceil(hi), -20, -27].filter((v, i, a) => a.indexOf(v) === i && v <= hi && v >= lo)) {
     grid += `<line class="grid" x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${v} dBm</text>`;
   }
-  const bad = `<rect x="${padL}" y="${y(-27)}" width="${W - padL}" height="${Math.max(0, H - padB - y(-27))}" fill="var(--bad)" opacity=".08"/>`;
+  const bad = `<rect x="${padL}" y="${y(-27)}" width="${W - padL}" height="${Math.max(0, H - padB - y(-27))}" fill="var(--danger)" opacity=".08"/>`;
   const path = rows.map((r, i) => `${i ? "L" : "M"}${x(r.ts).toFixed(1)},${y(r.rx_dbm).toFixed(1)}`).join("");
   el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${bad}${grid}<path d="${path}" fill="none" stroke="var(--rx)" stroke-width="1.6"/></svg>`;
 }
