@@ -70,16 +70,16 @@ def phone_overview() -> dict:
                 "features": feats,
             })
     logs = []
-    for l in as_list(field(field(vs, "CallControl", default={}) or {}, "CallLogs", default=[])):
-        if isinstance(l, dict):
+    for log in as_list(field(field(vs, "CallControl", default={}) or {}, "CallLogs", default=[])):
+        if isinstance(log, dict):
             logs.append({
-                "uid": field(l, "uid"),
-                "direction": field(l, "Direction", "CallDirection", default=""),
-                "number": field(l, "RemoteParty", "CallingPartyNumber", "CalledPartyNumber", "Number", default=""),
-                "start": field(l, "Start", "StartTime", "Date", default=""),
-                "duration": to_num(field(l, "Duration", default=0)),
-                "status": field(l, "CallTerminationCause", "Status", "Type", default=""),
-                "raw": l,
+                "uid": field(log, "uid"),
+                "direction": field(log, "Direction", "CallDirection", default=""),
+                "number": field(log, "RemoteParty", "CallingPartyNumber", "CalledPartyNumber", "Number", default=""),
+                "start": field(log, "Start", "StartTime", "Date", default=""),
+                "duration": to_num(field(log, "Duration", default=0)),
+                "status": field(log, "CallTerminationCause", "Status", "Type", default=""),
+                "raw": log,
             })
     phones = [{"uid": field(x, "uid"), "type": field(x, "PhyInterfaceType", default=""), "name": field(x, "Description", default="")}
               for x in as_list(field(vs, "PhyInterfaces", default=[])) if isinstance(x, dict)]
@@ -87,7 +87,7 @@ def phone_overview() -> dict:
 
 
 def update_line(uid: int, changes: dict):
-    line = next((l for l in phone_overview()["lines"] if l["uid"] == uid), None)
+    line = next((ln for ln in phone_overview()["lines"] if ln["uid"] == uid), None)
     if line is None:
         raise LookupError(f"No existe la línea {uid}")
     base = f"{LINES}/Line[@uid='{int(uid)}']/CallingFeatures"
@@ -124,7 +124,7 @@ def ring_test():
 def delete_call_log(uid: int | None = None):
     c = get_client()
     logs = phone_overview()["call_logs"]
-    targets = [l["uid"] for l in logs if uid is None or l["uid"] == uid]
+    targets = [c["uid"] for c in logs if uid is None or c["uid"] == uid]
     if uid is not None and not targets:
         raise LookupError("No existe esa llamada")
     for t in targets:

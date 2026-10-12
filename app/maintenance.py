@@ -132,7 +132,7 @@ def system_log(lines: int = 300) -> list[str]:
     if not uri:
         raise RuntimeError("El router no devolvió el enlace del registro")
     text = c.download(uri).decode("utf-8", errors="replace")
-    return [l for l in text.splitlines() if l.strip()][-lines:][::-1]
+    return [ln for ln in text.splitlines() if ln.strip()][-lines:][::-1]
 
 
 def backup() -> tuple[bytes, str]:

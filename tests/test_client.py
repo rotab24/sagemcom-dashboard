@@ -1,6 +1,6 @@
 import json
 
-from sagemcom.client import SagemcomClient, SessionExpired, md5, XMO_INVALID_SESSION_ERR, XMO_NO_ERR, XMO_REQUEST_NO_ERR
+from sagemcom.client import SagemcomClient, md5, XMO_INVALID_SESSION_ERR, XMO_NO_ERR, XMO_REQUEST_NO_ERR
 
 
 class FakeResponse:
