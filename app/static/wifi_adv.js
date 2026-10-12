@@ -38,7 +38,7 @@ async function loadWifiAdvanced() {
         <p class="help">Decide qué aparatos pueden conectarse a esta red por su MAC. En "Solo permitir", <b>incluye tu propio móvil/ordenador</b> o te quedarás fuera.</p>
         <select data-f="mac_mode">${Object.entries(MAC_MODES).map(([k, v]) => `<option value="${k}" ${k === n.mac_filter.mode ? "selected" : ""}>${v}</option>`).join("")}</select>
         <ul class="clients mac-list">${n.mac_filter.list.map((m) => `<li><span>${esc(m.name || m.mac)} <span class="muted small mono">${esc(m.mac)}</span></span>
-          <button type="button" class="icon-btn" data-act="mac-del" data-mac="${esc(m.mac)}" title="Quitar">✕</button></li>`).join("")}</ul>
+          <button type="button" class="icon-btn" data-act="mac-del" data-mac="${esc(m.mac)}" title="Quitar" aria-label="Quitar de la lista"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button></li>`).join("")}</ul>
         <div class="row wrap">
           <select data-f="mac_add" aria-label="Añadir dispositivo"><option value="">+ Añadir dispositivo…</option>
             ${hostsCache.filter((h) => !n.mac_filter.list.some((m) => m.mac === h.mac)).map((h) => `<option value="${esc(h.mac)}">${esc(h.name)} (${esc(h.mac)})</option>`).join("")}</select>
@@ -122,7 +122,7 @@ $("#wifi-adv-networks").addEventListener("change", (e) => {
   if (!sel || !sel.value) return;
   const opt = sel.selectedOptions[0];
   const li = document.createElement("li");
-  li.innerHTML = `<span>${esc(opt.textContent)}</span><button type="button" class="icon-btn" data-act="mac-del" data-mac="${esc(sel.value)}" title="Quitar">✕</button>`;
+  li.innerHTML = `<span>${esc(opt.textContent)}</span><button type="button" class="icon-btn" data-act="mac-del" data-mac="${esc(sel.value)}" title="Quitar" aria-label="Quitar de la lista"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button>`;
   sel.closest("details").querySelector(".mac-list").appendChild(li);
   opt.remove();
   sel.value = "";
@@ -155,7 +155,7 @@ document.querySelectorAll("[data-scan]").forEach((b) => b.addEventListener("clic
     const current = (wifiRadiosCache || []).find((x) => x.alias === b.dataset.scan);
     const best = r.advice.best;
     out.innerHTML = `
-      <p class="mt">${r.networks.length} redes encontradas. Canal más libre: <b>${best ?? "?"}</b>${current ? ` (ahora usas el ${current.channel}${current.channel === best ? " ✔" : ""})` : ""}.</p>
+      <p class="mt">${r.networks.length} redes encontradas. Canal más libre: <b>${best ?? "?"}</b>${current ? ` (ahora usas el ${current.channel}${current.channel === best ? ", que ya es el mejor" : ""})` : ""}.</p>
       <div class="table-wrap"><table><thead><tr><th>Red</th><th>Canal</th><th>Señal</th></tr></thead><tbody>
       ${r.networks.map((n) => `<tr><td>${esc(n.ssid)}</td><td>${n.channel || "?"}</td><td>${signalBars(n.signal_dbm)} <span class="muted small">${n.signal_dbm ?? "?"} dBm</span></td></tr>`).join("")}
       </tbody></table></div>`;

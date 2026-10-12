@@ -12,6 +12,12 @@
 </head>
 <body>
   <a class="skip-link" href="#contenido" data-skip>Saltar al contenido</a>
+  <!-- Iconos (sin dependencias). Se usan con <svg class="icon"><use href="#i-..."/></svg> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-edit" viewBox="0 0 16 16"><path d="M11.2 2.3a1.6 1.6 0 0 1 2.3 2.3L5.4 12.7 2.5 13.5l.8-2.9z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-more" viewBox="0 0 16 16"><circle cx="3" cy="8" r="1.4" fill="currentColor"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="13" cy="8" r="1.4" fill="currentColor"/></symbol>
+  </svg>
   <header>
     <div>
       <h1>Router <span id="model">—</span></h1>
@@ -20,7 +26,7 @@
     <div class="header-right">
       <span id="mock-badge" class="badge warn" hidden>MODO SIMULADO</span>
       <span id="updated" class="muted small"></span>
-      <button type="button" class="small ui-toggle" data-ui-toggle data-noedit aria-pressed="false" title="Editar textos y apariencia (Ctrl+E)">✎ Editar</button>
+      <button type="button" class="small ui-toggle" data-ui-toggle data-noedit aria-pressed="false" title="Editar textos y apariencia (Ctrl+E)"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-edit"/></svg> Editar</button>
     </div>
   </header>
 
@@ -97,7 +103,7 @@
         <div class="panel-head">
           <div>
             <h2>Dispositivos</h2>
-            <p class="help">Todo lo que se conecta a tu router. Pulsa ✎ (o la IP, el tipo o los grupos) para abrir su ficha: nombre, IP fija, tipo, grupos y notas. También puedes cortarles Internet al momento o durante un rato, y programar horarios sin Internet.</p>
+            <p class="help">Todo lo que se conecta a tu router. Pulsa el lápiz (o la IP, el tipo o los grupos) para abrir su ficha: nombre, IP fija, tipo, grupos y notas. También puedes cortarles Internet al momento o durante un rato, y programar horarios sin Internet.</p>
           </div>
         </div>
         <div class="hosts-toolbar">
@@ -133,7 +139,7 @@
           <button type="button" class="small" data-bulk="unblock">Desbloquear</button>
           <button type="button" class="small" data-bulk="known">Marcar conocidos</button>
           <button type="button" class="small" data-bulk="export">Exportar selección</button>
-          <button type="button" class="small" data-bulk="clear">✕ Quitar selección</button>
+          <button type="button" class="small" data-bulk="clear">Quitar selección</button>
         </div>
         <div id="parental-note" class="notice" hidden></div>
         <div class="table-wrap">
@@ -154,7 +160,7 @@
                 <th><select data-filter="groups" aria-label="Filtrar por grupo"></select></th>
                 <th><select data-filter="interface" aria-label="Filtrar por conexión"></select></th>
                 <th><select data-filter="internet" aria-label="Filtrar por Internet"></select></th>
-                <th><button type="button" class="small" id="host-filters-clear" title="Quitar filtros">✕</button></th>
+                <th><button type="button" class="small" id="host-filters-clear" title="Quitar filtros" aria-label="Quitar filtros"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button></th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -490,7 +496,7 @@
           <label class="inline expert-toggle"><input type="checkbox" id="expert-mode"> Modo experto (escritura)</label>
         </div>
         <form id="xpath-form" class="row">
-          <button type="button" id="xpath-up" title="Subir un nivel">↑</button>
+          <button type="button" id="xpath-up" title="Subir un nivel" aria-label="Subir un nivel">↑</button>
           <input id="xpath" value="Device" list="xpath-shortcuts" aria-label="xpath">
           <datalist id="xpath-shortcuts">
             <option value="Device/DeviceInfo"><option value="Device/Hosts/Hosts"><option value="Device/WiFi">

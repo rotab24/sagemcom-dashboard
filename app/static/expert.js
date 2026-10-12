@@ -76,7 +76,7 @@ function parseExpertValue() {
 async function expertConfirm(path, what) {
   const d = await api(`/api/expert/danger?path=${encodeURIComponent(path)}`);
   if (d.danger) {
-    const txt = prompt(`⚠ Ruta delicada: ${d.danger}.\n${what}\n\nUn error aquí puede dejarte sin Internet o sin acceso al router.\nEscribe ${d.phrase} para continuar:`);
+    const txt = prompt(`Atención, ruta delicada: ${d.danger}.\n${what}\n\nUn error aquí puede dejarte sin Internet o sin acceso al router.\nEscribe ${d.phrase} para continuar:`);
     return txt === d.phrase ? txt : null;
   }
   return confirm(`${what}\n\n¿Continuar?`) ? "yes" : null;

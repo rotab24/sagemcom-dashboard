@@ -84,7 +84,7 @@
   bar.setAttribute("data-noedit", "");
   bar.innerHTML = `
     <div class="ui-bar-main">
-      <b>✎ Modo edición</b>
+      <b>Modo edición</b>
       <span class="muted">Haz clic en un texto para cambiarlo (Enter guarda, Esc cancela; vacío = original) · <kbd>Alt</kbd>+clic = clic normal · <kbd>Ctrl</kbd>+<kbd>E</kbd> para salir</span>
       <span class="ui-bar-actions">
         <button type="button" class="small" data-ui="theme" aria-expanded="false">Apariencia</button>

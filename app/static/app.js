@@ -63,7 +63,7 @@ let toastTimer;
 function toast(msg) {
   const el = $("#toast");
   if (verifiedPending.n && Date.now() - verifiedPending.at < 5000) {
-    msg += ` · ✓ comprobado en el router (${verifiedPending.n} ${verifiedPending.n === 1 ? "valor" : "valores"})`;
+    msg += ` · comprobado en el router (${verifiedPending.n} ${verifiedPending.n === 1 ? "valor" : "valores"})`;
   }
   verifiedPending = { n: 0, at: 0 };
   el.textContent = msg;
@@ -325,7 +325,7 @@ function hostRow(h) {
   return `<tr class="${h.active ? "" : "inactive"}${sel ? " selected" : ""}">
     <td class="c-sel"><input type="checkbox" data-select="${esc(h.mac)}" ${sel ? "checked" : ""} aria-label="Seleccionar ${esc(h.name)}"></td>
     <td class="c-name"><span class="dot ${h.active ? "on" : ""}"></span><span class="name">${esc(h.name)}</span>
-      <button class="icon-btn" title="Editar ficha" data-act="edit" data-uid="${h.uid}">✎</button>
+      <button class="icon-btn" title="Editar ficha" aria-label="Editar ficha de ${esc(h.name)}" data-act="edit" data-uid="${h.uid}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-edit"/></svg></button>
       ${h.known ? "" : '<span class="badge new">nuevo</span>'}${note}</td>
     <td class="c-mac mono">${esc(h.mac)}</td>
     <td class="c-ip mono editable" title="Cambiar o dejar fija la IP" data-act="edit" data-focus="fixed_ip" data-uid="${h.uid}">${hostIpCell(h)}</td>
@@ -333,7 +333,7 @@ function hostRow(h) {
     <td class="c-groups editable" title="Cambiar grupos" data-act="edit" data-focus="groups" data-uid="${h.uid}">${groups}</td>
     <td class="c-conn">${esc(h.interface)}</td>
     <td class="c-net">${blockPill(h)}</td>
-    <td class="c-menu"><button class="icon-btn kebab" title="Acciones" aria-haspopup="menu" aria-expanded="false" data-act="menu" data-uid="${h.uid}">⋯</button></td>
+    <td class="c-menu"><button class="icon-btn kebab" title="Acciones" aria-label="Acciones de ${esc(h.name)}" aria-haspopup="menu" aria-expanded="false" data-act="menu" data-uid="${h.uid}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-more"/></svg></button></td>
   </tr>`;
 }
 
@@ -891,7 +891,7 @@ function signalBars(dbm) {
   if (dbm == null) return "";
   const n = dbm >= -55 ? 4 : dbm >= -65 ? 3 : dbm >= -75 ? 2 : 1;
   const label = ["", "Débil", "Regular", "Buena", "Excelente"][n];
-  return `<span class="bars" title="${dbm} dBm · ${label}">${"▮".repeat(n)}${"▯".repeat(4 - n)}</span>`;
+  return `<span class="bars" role="img" aria-label="Señal ${label}, ${dbm} dBm" title="${dbm} dBm · ${label}">${[1, 2, 3, 4].map((i) => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</span>`;
 }
 
 let wifiRadiosCache = [];

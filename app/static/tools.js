@@ -9,7 +9,7 @@ async function loadMaintenance() {
   maintData = await api("/api/maintenance");
   const m = maintData;
   $("#fw-info").textContent = `Firmware ${m.info.firmware} (${m.info.internal_firmware}) · compilado ${String(m.info.build_date || "").slice(0, 10)} · ${m.info.reboot_count} reinicios`;
-  $("#time-info").textContent = `Hora del router: ${m.time.local_time ? new Date(m.time.local_time).toLocaleString("es-ES") : "?"} · ${m.time.status === "SYNCHRONIZED" ? "sincronizada ✔" : m.time.status}`;
+  $("#time-info").textContent = `Hora del router: ${m.time.local_time ? new Date(m.time.local_time).toLocaleString("es-ES") : "?"} · ${m.time.status === "SYNCHRONIZED" ? "sincronizada" : m.time.status}`;
   const ntp = $("#ntp-form");
   ntp.s1.value = m.time.servers[0] || "";
   ntp.s2.value = m.time.servers[1] || "";
@@ -215,7 +215,7 @@ $("#dash-restart").addEventListener("click", async () => {
 window.addEventListener("load", () => {
   let secs = null;
   try { secs = sessionStorage.getItem("dashboard-restarted"); sessionStorage.removeItem("dashboard-restarted"); } catch { /* nada */ }
-  if (secs) toast(`✓ Dashboard reiniciado: es un proceso nuevo (tardó ${secs} s)`);
+  if (secs) toast(`Dashboard reiniciado: es un proceso nuevo (tardó ${secs} s)`);
 });
 
 const _loadToolsTab = loaders.herramientas;

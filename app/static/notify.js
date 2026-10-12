@@ -64,8 +64,8 @@ function statusLine(st) {
   if (!st) return '<span class="muted">Todavía no se ha enviado nada desde que arrancó el dashboard.</span>';
   const when = fmtTime(st.ts);
   return st.ok
-    ? `<span class="ok-text">✓ Último aviso aceptado por ntfy: ${when}${st.title ? ` · «${esc(st.title)}»` : ""}</span>`
-    : `<span class="danger-text">✗ Último aviso falló (${when}): ${esc(st.error)}</span>`;
+    ? `<span class="ok-text">Último aviso aceptado por ntfy: ${when}${st.title ? ` · «${esc(st.title)}»` : ""}</span>`
+    : `<span class="danger-text">Falló el último aviso (${when}): ${esc(st.error)}</span>`;
 }
 
 function renderNotifyEditor() {
@@ -118,7 +118,7 @@ function renderNotifyEditor() {
       <tbody>${rows}</tbody>
     </table></div>
     <p class="help">En el mensaje y el título puedes usar las variables de cada fila (pulsa una para insertarla). <code>{mensaje}</code> es el texto normal del dashboard.
-      Las etiquetas son emojis de ntfy separados por comas: <code>warning</code> ⚠️, <code>rotating_light</code> 🚨, <code>tada</code> 🎉, <code>lock</code> 🔒, <code>wifi</code>…</p>
+      Las etiquetas son nombres de emoji de ntfy separados por comas (se ven en el móvil, no aquí): <code>warning</code>, <code>rotating_light</code>, <code>tada</code>, <code>lock</code>, <code>wifi</code>…</p>
     <div class="row end">
       ${d.id ? '<button type="button" class="danger" data-delete>Borrar lista</button>' : ""}
       <button type="button" data-test-all>Enviar prueba</button>

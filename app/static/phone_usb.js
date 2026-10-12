@@ -48,9 +48,9 @@ async function loadPhone() {
     </form>`).join("") || '<p class="muted">No hay líneas configuradas.</p>';
 
   $("#call-logs").innerHTML = phoneData.call_logs.map((c) => `<li>
-      <span>${/in/i.test(c.direction) ? "↙" : /out/i.test(c.direction) ? "↗" : "•"} <b class="mono">${esc(c.number || "Oculto")}</b>
+      <span><span class="muted">${/in/i.test(c.direction) ? "Recibida" : /out/i.test(c.direction) ? "Hecha" : "Llamada"}</span> <b class="mono">${esc(c.number || "Oculto")}</b>
         <span class="muted small">${c.start ? esc(new Date(c.start).toLocaleString("es-ES")) : ""} ${fmtDuration(c.duration)}</span></span>
-      <button class="icon-btn" data-call-del="${c.uid}" title="Borrar">✕</button></li>`).join("") || '<li class="muted">Sin llamadas</li>';
+      <button class="icon-btn" data-call-del="${c.uid}" title="Borrar" aria-label="Borrar esta llamada"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button></li>`).join("") || '<li class="muted">Sin llamadas</li>';
   $("#calls-clear").hidden = !phoneData.call_logs.length;
 }
 
