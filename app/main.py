@@ -6,6 +6,7 @@ import requests
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel, Field
 
 from sagemcom import SagemcomError
@@ -39,6 +40,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Sagemcom Dashboard", lifespan=lifespan)
+# HTML, JS, CSS y las respuestas grandes de la API viajan comprimidos
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.include_router(expert_api)
 app.include_router(network_api)
 app.include_router(wifi_advanced_api)
