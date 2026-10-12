@@ -32,6 +32,8 @@
 }
 
 * { box-sizing: border-box; }
+/* hidden siempre gana a cualquier display de una clase (.bulk-bar, .tab…) */
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
@@ -126,7 +128,6 @@ label.inline { display: flex; gap: 6px; align-items: center; margin-top: 10px; c
 .tabs a:hover { color: var(--text); }
 .tabs a.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 500; }
 .tab { display: flex; flex-direction: column; gap: 16px; }
-.tab[hidden] { display: none; }
 
 .help { color: var(--muted); font-size: 13px; margin: -6px 0 12px; max-width: 75ch; }
 .help.top { margin: 0; }
@@ -252,7 +253,6 @@ table.schedule td.denied { background: var(--denied); }
 .chip { font: 12px ui-monospace, Consolas, monospace; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--accent); cursor: pointer; }
 .chip:hover { border-color: var(--accent); }
 .expert { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-.expert[hidden] { display: none; }
 textarea { font: 12px ui-monospace, Consolas, monospace; color: var(--text); background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px; width: 100%; resize: vertical; }
 .expert-toggle { margin-top: 0; color: var(--warn); }
 
