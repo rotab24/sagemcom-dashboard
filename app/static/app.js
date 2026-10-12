@@ -893,11 +893,11 @@ async function loadWifi() {
           <h2>${esc(n.ssid)}</h2>
           <div class="muted small">${n.guest ? "Invitados · " : "Principal · "}${esc(n.band)} · ${n.enabled ? '<span class="ok">emitiendo</span>' : "apagada"}</div>
         </div>
-        <label class="switch" title="Encender/apagar esta red"><input type="checkbox" data-act="toggle" ${n.enabled ? "checked" : ""}><span></span></label>
+        <label class="switch" title="Encender/apagar esta red"><input type="checkbox" data-act="toggle" ${n.enabled ? "checked" : ""} aria-label="Red ${esc(n.ssid)} encendida"><span></span></label>
       </div>
-      <div class="field"><label>Nombre de la red</label><input data-f="ssid" value="${esc(n.ssid)}" maxlength="32"></div>
-      <div class="field"><label>Contraseña</label>
-        <div class="pw"><input data-f="password" type="password" value="${esc(n.password)}" maxlength="63" autocomplete="off">
+      <div class="field"><label for="ssid-${esc(n.alias)}">Nombre de la red</label><input id="ssid-${esc(n.alias)}" data-f="ssid" value="${esc(n.ssid)}" maxlength="32" autocomplete="off" spellcheck="false"></div>
+      <div class="field"><label for="pw-${esc(n.alias)}">Contraseña</label>
+        <div class="pw"><input id="pw-${esc(n.alias)}" data-f="password" type="password" value="${esc(n.password)}" maxlength="63" autocomplete="off">
           <button type="button" class="small" data-act="show-pw">Ver</button></div></div>
       <label class="inline"><input type="checkbox" data-f="visible" ${n.visible ? "checked" : ""}> Visible (si la desmarcas, la red no aparece en la lista y hay que escribir el nombre a mano)</label>
       <div class="row end">

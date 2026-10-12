@@ -289,8 +289,8 @@
           <h2>Firewall y UPnP</h2>
           <p class="help">El firewall filtra lo que entra desde Internet. "Bajo" es lo normal en casa; "Alto" también restringe lo que sale y puede romper juegos o apps. El UPnP deja que los aparatos abran puertos solos: cómodo, pero menos seguro.</p>
           <form id="fw-form">
-            <div class="field"><label>Nivel</label>
-              <select name="level"><option value="LOW">Bajo (recomendado)</option><option value="MEDIUM">Medio</option><option value="HIGH">Alto</option></select></div>
+            <div class="field"><label for="fw-level">Nivel</label>
+              <select id="fw-level" name="level"><option value="LOW">Bajo (recomendado)</option><option value="MEDIUM">Medio</option><option value="HIGH">Alto</option></select></div>
             <label class="inline"><input type="checkbox" name="respond_to_ping"> Responder a ping desde Internet</label>
             <label class="inline"><input type="checkbox" name="port_scan_detection"> Detectar escaneos de puertos</label>
             <label class="inline"><input type="checkbox" name="block_fragments"> Bloquear paquetes fragmentados</label>
@@ -332,7 +332,7 @@
           <form id="media-form">
             <label class="inline"><input type="checkbox" name="smb"> Compartir el USB en la red (SMB)</label>
             <label class="inline"><input type="checkbox" name="dlna"> Servidor multimedia DLNA</label>
-            <div class="field mt"><label>Nombre del servidor multimedia</label><input name="dlna_name" maxlength="64"></div>
+            <div class="field mt"><label for="dlna-name">Nombre del servidor multimedia</label><input id="dlna-name" name="dlna_name" maxlength="64" autocomplete="off"></div>
             <div class="row end"><button class="primary">Guardar</button></div>
           </form>
         </section>

@@ -73,9 +73,10 @@ async function loadGroups() {
 }
 
 function groupEditor(name = "", macs = []) {
+  const gid = `group-name-${Math.random().toString(36).slice(2, 8)}`;
   const opts = hostsCache.map((h) => `<label class="inline"><input type="checkbox" value="${esc(h.mac)}" ${macs.includes(h.mac) ? "checked" : ""}> ${esc(h.name)} <span class="muted small">${esc(h.ip)}</span></label>`).join("");
   $("#groups").insertAdjacentHTML("afterbegin", `<form class="group-edit radio-box" data-old="${esc(name)}">
-    <div class="field"><label>Nombre del grupo</label><input name="name" value="${esc(name)}" maxlength="40" required></div>
+    <div class="field"><label for="${gid}">Nombre del grupo</label><input id="${gid}" name="name" value="${esc(name)}" maxlength="40" required autocomplete="off"></div>
     <div class="group-members">${opts}</div>
     <div class="row end"><button type="button" class="small" data-gact="cancel">Cancelar</button><button class="small primary">Guardar grupo</button></div>
   </form>`);
@@ -199,8 +200,8 @@ function renderAutomations() {
   $("#automations").innerHTML = autoItems.map((a, i) => `
     <div class="auto-item radio-box" data-i="${i}">
       <div class="row wrap">
-        <label class="switch" title="Activar/desactivar"><input type="checkbox" data-f="enabled" ${a.enabled ? "checked" : ""}><span></span></label>
-        <input data-f="name" value="${esc(a.name)}" placeholder="Nombre" style="flex:1;min-width:160px">
+        <label class="switch" title="Activar/desactivar"><input type="checkbox" data-f="enabled" ${a.enabled ? "checked" : ""} aria-label="Automatización activada"><span></span></label>
+        <input data-f="name" value="${esc(a.name)}" placeholder="Nombre" aria-label="Nombre de la automatización" style="flex:1;min-width:160px">
         <input data-f="cron" value="${esc(a.cron)}" placeholder="0 23 * * *" class="mono" style="width:130px" aria-label="Horario cron">
         <select data-f="action">${autoActions.map((k) => `<option value="${k}" ${k === a.action ? "selected" : ""}>${esc((ACTION_HELP[k] || {}).label || k)}</option>`).join("")}</select>
       </div>

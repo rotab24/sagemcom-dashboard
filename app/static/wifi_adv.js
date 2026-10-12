@@ -22,12 +22,12 @@ async function loadWifiAdvanced() {
     return `
     <div class="radio-box adv-card" data-alias="${esc(n.alias)}">
       <strong>${esc(n.ssid)}</strong> <span class="muted small">${esc(BAND[n.radio] || n.radio)}</span>
-      <div class="field mt"><label>Seguridad</label>
-        <select data-f="security">${Object.entries(advData.security_modes).map(([k, v]) =>
+      <div class="field mt"><label for="sec-${esc(n.alias)}">Seguridad</label>
+        <select id="sec-${esc(n.alias)}" data-f="security">${Object.entries(advData.security_modes).map(([k, v]) =>
           `<option value="${k}" ${k === n.security ? "selected" : ""}>${esc(v)}</option>`).join("")}</select></div>
       <label class="inline"><input type="checkbox" data-f="isolation" ${n.isolation ? "checked" : ""}> Aislar clientes (los aparatos de esta red no se ven entre sí)</label>
-      <div class="field mt"><label>Máximo de aparatos conectados (0 = sin límite)</label>
-        <input type="number" min="0" max="128" data-f="max_clients" value="${n.max_clients}"></div>
+      <div class="field mt"><label for="maxcl-${esc(n.alias)}">Máximo de aparatos conectados (0 = sin límite)</label>
+        <input id="maxcl-${esc(n.alias)}" type="number" inputmode="numeric" min="0" max="128" data-f="max_clients" value="${n.max_clients}"></div>
       <label class="inline"><input type="checkbox" data-f="wps" ${n.wps.enabled ? "checked" : ""} ${n.mac_filter.mode !== "DISABLED" ? "disabled" : ""}> WPS (conectar pulsando un botón)</label>
       <div class="row end">
         <button type="button" class="small" data-act="wps-start" ${n.wps.enabled ? "" : "disabled"}>Pulsar WPS</button>
