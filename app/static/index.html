@@ -8,6 +8,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect x=%273%27 y=%2716%27 width=%2726%27 height=%2711%27 rx=%273%27 fill=%27%232563eb%27/%3E%3Cpath d=%27M10 16V6M22 16V6%27 stroke=%27%232563eb%27 stroke-width=%272.5%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%279%27 cy=%2721.5%27 r=%271.6%27 fill=%27%23fff%27/%3E%3Ccircle cx=%2714%27 cy=%2721.5%27 r=%271.6%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 </head>
 <body>
+  <a class="skip-link" href="#contenido" data-skip>Saltar al contenido</a>
   <header>
     <div>
       <h1>Router <span id="model">—</span></h1>
@@ -20,7 +21,7 @@
     </div>
   </header>
 
-  <nav class="tabs" id="tabs">
+  <nav class="tabs" id="tabs" aria-label="Secciones">
     <a href="#resumen" data-tab="resumen">Resumen</a>
     <a href="#dispositivos" data-tab="dispositivos">Dispositivos</a>
     <a href="#wifi" data-tab="wifi">Wi‑Fi</a>
@@ -30,18 +31,18 @@
     <a href="#herramientas" data-tab="herramientas">Herramientas</a>
   </nav>
 
-  <div id="error" class="error" hidden></div>
-  <div id="toast" class="toast" hidden></div>
+  <div id="error" class="error" role="alert" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <main>
+  <main id="contenido" tabindex="-1">
     <!-- ============ RESUMEN ============ -->
     <section class="tab" id="tab-resumen">
       <div class="cards">
-        <article class="card"><h3>Internet</h3><div class="big" id="wan-status">—</div><div class="muted small" id="wan-ip"></div></article>
-        <article class="card"><h3>Tráfico ahora</h3><div class="big" id="rate-rx">—</div><div class="muted small" id="rate-tx"></div></article>
-        <article class="card"><h3>Fibra</h3><div class="big" id="gpon-rx">—</div><div class="muted small" id="gpon-extra"></div></article>
-        <article class="card"><h3>Router</h3><div class="big" id="uptime">—</div><div class="muted small" id="mem"></div></article>
-        <article class="card link" data-goto="dispositivos"><h3>Dispositivos</h3><div class="big" id="hosts-count">—</div><div class="muted small" id="hosts-extra"></div></article>
+        <article class="card"><h2 class="card-title">Internet</h2><div class="big" id="wan-status">—</div><div class="muted small" id="wan-ip"></div></article>
+        <article class="card"><h2 class="card-title">Tráfico ahora</h2><div class="big" id="rate-rx">—</div><div class="muted small" id="rate-tx"></div></article>
+        <article class="card"><h2 class="card-title">Fibra</h2><div class="big" id="gpon-rx">—</div><div class="muted small" id="gpon-extra"></div></article>
+        <article class="card"><h2 class="card-title">Router</h2><div class="big" id="uptime">—</div><div class="muted small" id="mem"></div></article>
+        <a class="card link" href="#dispositivos"><h2 class="card-title">Dispositivos</h2><div class="big" id="hosts-count">—</div><div class="muted small" id="hosts-extra"></div></a>
       </div>
 
 

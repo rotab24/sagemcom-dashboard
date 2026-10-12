@@ -92,11 +92,19 @@ function showTab(name) {
   if (!document.getElementById(`tab-${name}`)) name = "resumen";
   currentTab = name;
   document.querySelectorAll(".tab").forEach((t) => { t.hidden = t.id !== `tab-${name}`; });
-  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("active", a.dataset.tab === name));
+  document.querySelectorAll("#tabs a").forEach((a) => {
+    a.classList.toggle("active", a.dataset.tab === name);
+    if (a.dataset.tab === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
   (loaders[name] || (() => {}))();
 }
 
 window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+// El enlace de salto no cambia de pestaña (el # sirve para eso): solo lleva el foco al contenido
+document.querySelector("[data-skip]").addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("contenido").focus();
+});
 document.querySelectorAll("[data-goto]").forEach((el) => el.addEventListener("click", () => { location.hash = el.dataset.goto; }));
 
 // ---- resumen --------------------------------------------------------------------
@@ -325,7 +333,7 @@ function hostRow(h) {
     <td class="c-groups editable" title="Cambiar grupos" data-act="edit" data-focus="groups" data-uid="${h.uid}">${groups}</td>
     <td class="c-conn">${esc(h.interface)}</td>
     <td class="c-net">${blockPill(h)}</td>
-    <td class="c-menu"><button class="icon-btn kebab" title="Acciones" aria-haspopup="menu" data-act="menu" data-uid="${h.uid}">⋯</button></td>
+    <td class="c-menu"><button class="icon-btn kebab" title="Acciones" aria-haspopup="menu" aria-expanded="false" data-act="menu" data-uid="${h.uid}">⋯</button></td>
   </tr>`;
 }
 
@@ -517,6 +525,8 @@ function openRowMenu(btn, h) {
     `<button type="button" role="menuitem" data-menu="${act}" class="${act.startsWith("block") ? "danger-text" : ""}">${esc(label)}</button>`).join("");
   rowMenu.dataset.uid = h.uid;
   rowMenu.hidden = false;
+  document.querySelectorAll("[data-act=menu][aria-expanded=true]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+  btn.setAttribute("aria-expanded", "true");
   const r = btn.getBoundingClientRect();
   const m = rowMenu.getBoundingClientRect();
   const top = r.bottom + m.height + 8 > innerHeight ? r.top - m.height - 4 : r.bottom + 4;
@@ -525,7 +535,10 @@ function openRowMenu(btn, h) {
   rowMenu.querySelector("button").focus();
 }
 
-function closeRowMenu() { rowMenu.hidden = true; }
+function closeRowMenu() {
+  rowMenu.hidden = true;
+  document.querySelectorAll("[data-act=menu][aria-expanded=true]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+}
 
 document.addEventListener("click", (e) => { if (!rowMenu.hidden && !e.target.closest("#row-menu, [data-act=menu]")) closeRowMenu(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !rowMenu.hidden) closeRowMenu(); });
