@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Router Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Router <span id="model">—</span></h1>
+      <p class="muted" id="subtitle">Conectando…</p>
+    </div>
+    <div class="header-right">
+      <span id="mock-badge" class="badge warn" hidden>MODO SIMULADO</span>
+      <span id="updated" class="muted small"></span>
+      <button type="button" class="small ui-toggle" data-ui-toggle data-noedit aria-pressed="false" title="Editar textos y apariencia (Ctrl+E)">✎ Editar</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <a href="#resumen" data-tab="resumen">Resumen</a>
+    <a href="#dispositivos" data-tab="dispositivos">Dispositivos</a>
+    <a href="#wifi" data-tab="wifi">Wi‑Fi</a>
+    <a href="#red" data-tab="red">Red y seguridad</a>
+    <a href="#telefono" data-tab="telefono">Teléfono y USB</a>
+    <a href="#automatizaciones" data-tab="automatizaciones">Automatizaciones</a>
+    <a href="#herramientas" data-tab="herramientas">Herramientas</a>
+  </nav>
+
+  <div id="error" class="error" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+
+  <main>
+    <!-- ============ RESUMEN ============ -->
+    <section class="tab" id="tab-resumen">
+      <div class="cards">
+        <article class="card"><h3>Internet</h3><div class="big" id="wan-status">—</div><div class="muted small" id="wan-ip"></div></article>
+        <article class="card"><h3>Tráfico ahora</h3><div class="big" id="rate-rx">—</div><div class="muted small" id="rate-tx"></div></article>
+        <article class="card"><h3>Fibra</h3><div class="big" id="gpon-rx">—</div><div class="muted small" id="gpon-extra"></div></article>
+        <article class="card"><h3>Router</h3><div class="big" id="uptime">—</div><div class="muted small" id="mem"></div></article>
+        <article class="card link" data-goto="dispositivos"><h3>Dispositivos</h3><div class="big" id="hosts-count">—</div><div class="muted small" id="hosts-extra"></div></article>
+      </div>
+
+      <div id="unknown-alert" class="notice warn" hidden></div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Tráfico de Internet</h2>
+            <p class="help">Cuánto está descargando (azul) y subiendo (verde) toda la casa. Se guarda un punto por minuto mientras el dashboard está encendido.</p>
+          </div>
+          <select id="range" aria-label="Periodo">
+            <option value="1">1 h</option>
+            <option value="6">6 h</option>
+            <option value="24" selected>24 h</option>
+            <option value="168">7 días</option>
+          </select>
+        </div>
+        <div id="chart" class="chart"></div>
+        <div class="legend"><span class="sw rx"></span>Bajada <span class="sw tx"></span>Subida</div>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Informe</h2>
+              <p class="help">Resumen de lo que ha pasado (con los datos que el dashboard ha ido guardando mientras estaba encendido).</p>
+            </div>
+            <select id="report-days" aria-label="Periodo del informe"><option value="1">Hoy</option><option value="7" selected>7 días</option><option value="30">30 días</option></select>
+          </div>
+          <div id="report"></div>
+        </section>
+        <section class="panel">
+          <h2>Señal de la fibra</h2>
+          <p class="help">Potencia de luz que llega al router. Debe estar entre −8 y −27 dBm y ser estable; si baja de golpe, el cable o el conector tienen un problema.</p>
+          <div id="fiber-chart" class="chart small-chart"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <h2>Últimos eventos</h2>
+        <p class="help">Diario de lo que pasa: aparatos nuevos, bloqueos, cambios de Wi‑Fi, errores…</p>
+        <ul id="events" class="events"></ul>
+      </section>
+    </section>
+
+    <!-- ============ DISPOSITIVOS ============ -->
+    <section class="tab" id="tab-dispositivos" hidden>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Dispositivos</h2>
+            <p class="help">Todo lo que se conecta a tu router. Pulsa ✎ (o la IP, el tipo o los grupos) para abrir su ficha: nombre, IP fija, tipo, grupos y notas. También puedes cortarles Internet al momento o durante un rato, y programar horarios sin Internet.</p>
+          </div>
+        </div>
+        <div class="hosts-toolbar">
+          <input id="host-search" type="search" placeholder="Buscar por nombre, IP, MAC, tipo, grupo, notas…" aria-label="Buscar dispositivo">
+          <label>Agrupar por
+            <select id="host-groupby">
+              <option value="">Nada</option>
+              <option value="type">Tipo</option>
+              <option value="group">Grupo</option>
+              <option value="interface">Conexión</option>
+              <option value="status">Estado</option>
+            </select>
+          </label>
+          <label class="inline"><input type="checkbox" id="show-inactive"> Ver desconectados</label>
+          <button type="button" class="small" id="host-filters-toggle" aria-pressed="false">Filtros por columna</button>
+          <button type="button" class="small" id="host-export">Exportar CSV</button>
+          <button type="button" class="small" id="host-import">Importar CSV</button>
+          <input type="file" id="host-import-file" accept=".csv,text/csv" hidden>
+          <span id="hosts-shown" class="muted small"></span>
+        </div>
+        <div id="hosts-bulk" class="bulk-bar" hidden>
+          <b id="bulk-count"></b>
+          <select class="small" id="bulk-add-group" aria-label="Añadir a grupo"></select>
+          <select class="small" id="bulk-remove-group" aria-label="Quitar de grupo"></select>
+          <select class="small" id="bulk-type" aria-label="Poner tipo"></select>
+          <select class="small" id="bulk-block" aria-label="Bloquear">
+            <option value="">Bloquear…</option>
+            <option value="30">30 minutos</option>
+            <option value="60">1 hora</option>
+            <option value="120">2 horas</option>
+            <option value="always">Hasta que los desbloquee</option>
+          </select>
+          <button type="button" class="small" data-bulk="unblock">Desbloquear</button>
+          <button type="button" class="small" data-bulk="known">Marcar conocidos</button>
+          <button type="button" class="small" data-bulk="export">Exportar selección</button>
+          <button type="button" class="small" data-bulk="clear">✕ Quitar selección</button>
+        </div>
+        <div id="parental-note" class="notice" hidden></div>
+        <div class="table-wrap">
+          <table id="hosts">
+            <thead>
+              <tr>
+                <th class="c-sel"><input type="checkbox" id="host-select-all" aria-label="Seleccionar todos los visibles"></th>
+                <th data-sort="name">Nombre</th><th data-sort="mac">MAC</th><th data-sort="ip">IP</th><th data-sort="type">Tipo</th>
+                <th data-sort="groups">Grupos</th><th data-sort="interface">Conexión</th><th data-sort="internet">Internet</th>
+                <th class="c-menu"><span class="visually-hidden">Acciones</span></th>
+              </tr>
+              <tr id="host-filters" class="filter-row" hidden>
+                <th></th>
+                <th><input data-filter="name" placeholder="Nombre" aria-label="Filtrar por nombre"></th>
+                <th><input data-filter="mac" placeholder="MAC" aria-label="Filtrar por MAC"></th>
+                <th><input data-filter="ip" placeholder="IP" aria-label="Filtrar por IP"></th>
+                <th><select data-filter="type" aria-label="Filtrar por tipo"></select></th>
+                <th><select data-filter="groups" aria-label="Filtrar por grupo"></select></th>
+                <th><select data-filter="interface" aria-label="Filtrar por conexión"></select></th>
+                <th><select data-filter="internet" aria-label="Filtrar por Internet"></select></th>
+                <th><button type="button" class="small" id="host-filters-clear" title="Quitar filtros">✕</button></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Grupos</h2>
+            <p class="help">Junta varios aparatos (por ejemplo "Niños": sus móviles, tablet y consola) para bloquearlos o ponerles horario a la vez. Ideal para la "hora de cenar".</p>
+          </div>
+          <button id="group-new" class="small">+ Nuevo grupo</button>
+        </div>
+        <div id="groups"></div>
+      </section>
+    </section>
+
+    <!-- ============ WIFI ============ -->
+    <section class="tab" id="tab-wifi" hidden>
+      <p class="help top">Cada tarjeta es una red Wi‑Fi. Tu router emite la red principal en dos bandas: <b>2,4 GHz</b> (llega más lejos, más lenta) y <b>5 GHz</b> (más rápida, alcance menor). Las de <b>invitados</b> sirven para dar Wi‑Fi a visitas sin darles tu clave principal.</p>
+      <section class="panel">
+        <h2>Wi‑Fi para invitados (temporal)</h2>
+        <p class="help">Enciende la red de invitados con una contraseña nueva durante unas horas y se apaga sola. Tus invitados se conectan escaneando el QR, sin conocer tu clave principal ni ver tus aparatos.</p>
+        <div id="guest-temp"></div>
+      </section>
+      <div id="wifi-networks" class="wifi-grid"></div>
+      <section class="panel">
+        <h2>Canales</h2>
+        <p class="help">El canal es la "frecuencia" en la que emite cada banda. Si tus vecinos usan el mismo, la Wi‑Fi va peor. "Automático" deja que el router elija.</p>
+        <div id="radios" class="radios"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Wi‑Fi avanzada</h2>
+            <p class="help">Ajustes finos de cada red. Si no sabes qué es algo, déjalo como está.</p>
+          </div>
+          <label class="inline"><input type="checkbox" id="band-steering"> Una sola red para 2,4 y 5 GHz (band steering)</label>
+        </div>
+        <div id="wifi-adv-networks" class="wifi-grid"></div>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>Radios</h2>
+          <p class="help"><b>Ancho de canal</b>: más ancho = más velocidad, pero más interferencias. <b>Potencia</b>: bájala si tu casa es pequeña para molestar menos a los vecinos. El <b>ruido</b> es la interferencia de fondo; cuanto más negativo, mejor (−90 es muy bueno).</p>
+          <div id="wifi-adv-radios" class="radios"></div>
+        </section>
+        <section class="panel">
+          <h2>Redes vecinas</h2>
+          <p class="help">El router escanea las redes de alrededor y te dice qué canal está más libre. Tarda unos 20 segundos.</p>
+          <div class="row">
+            <button data-scan="RADIO2G4">Escanear 2,4 GHz</button>
+            <button data-scan="RADIO5G">Escanear 5 GHz</button>
+          </div>
+          <div id="scan-result"></div>
+        </section>
+      </div>
+    </section>
+
+
+    <!-- ============ RED Y SEGURIDAD ============ -->
+    <section class="tab" id="tab-red" hidden>
+      <section class="panel">
+        <h2>Abrir puertos</h2>
+        <p class="help">Permite que desde Internet se pueda llegar a un aparato de tu casa (una consola, un servidor de Minecraft, una cámara…). Cada regla dice: "lo que llegue al puerto X de mi router, mándalo a este dispositivo". Abre solo lo que necesites.</p>
+        <div class="table-wrap"><table id="pf-table">
+          <thead><tr><th>Descripción</th><th>Puerto</th><th>Protocolo</th><th>Destino</th><th></th></tr></thead><tbody></tbody>
+        </table></div>
+        <details class="add-box"><summary>+ Nueva regla</summary>
+          <form id="pf-form" class="form-grid">
+            <label>Descripción<input name="description" maxlength="64" placeholder="Minecraft"></label>
+            <label>Dispositivo<select name="internal_client" class="host-select" required></select></label>
+            <label>Puerto externo<input name="external_port" type="number" min="1" max="65535" required></label>
+            <label>Hasta el puerto <span class="muted">(opcional, rango)</span><input name="external_port_end" type="number" min="1" max="65535"></label>
+            <label>Puerto interno <span class="muted">(si es distinto)</span><input name="internal_port" type="number" min="1" max="65535"></label>
+            <label>Protocolo<select name="protocol"><option value="TCP">TCP</option><option value="UDP">UDP</option><option value="BOTH">TCP y UDP</option></select></label>
+            <div class="row end span2"><button class="primary">Abrir puerto</button></div>
+          </form>
+        </details>
+        <h3 class="mt">Abiertos automáticamente (UPnP)</h3>
+        <p class="help">Puertos que han abierto solos algunos aparatos (consolas, apps). Solo lectura.</p>
+        <ul id="upnp-rules" class="list"></ul>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>IPs fijas</h2>
+          <p class="help">Hace que un aparato reciba siempre la misma IP. Útil para abrir puertos o para impresoras y servidores. Se aplica cuando el aparato renueva su IP (o al reiniciarlo).</p>
+          <ul id="reservations" class="list"></ul>
+          <form id="res-form" class="row wrap">
+            <select name="mac" class="host-select-mac" required aria-label="Dispositivo"></select>
+            <input name="ip" placeholder="192.168.1.50" required aria-label="IP fija">
+            <button class="primary">Reservar</button>
+          </form>
+        </section>
+        <section class="panel">
+          <h2>DMZ</h2>
+          <p class="help">Manda <b>todo</b> lo que llegue de Internet a un único aparato, como si estuviera conectado sin router. Cómodo para consolas, pero ese aparato queda totalmente expuesto. Mejor abre puertos concretos.</p>
+          <form id="dmz-form">
+            <label class="inline"><input type="checkbox" name="enabled"> DMZ activada</label>
+            <div class="row" style="margin-top:8px"><select name="ip" class="host-select" aria-label="Dispositivo DMZ"></select><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+      </div>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>DHCP y DNS</h2>
+          <p class="help">El <b>DHCP</b> reparte IPs automáticamente a los aparatos dentro de un rango. El <b>DNS</b> traduce nombres (google.com) a IPs; puedes usar los de tu operador o otros más rápidos o que bloquean publicidad.</p>
+          <div class="muted small" id="lan-info"></div>
+          <form id="dhcp-form" class="form-grid">
+            <label>Primera IP<input name="start" required></label>
+            <label>Última IP<input name="end" required></label>
+            <label>Duración de la IP<select name="lease_time">
+              <option value="3600">1 hora</option><option value="21600">6 horas</option><option value="43200">12 horas</option>
+              <option value="86400">1 día</option><option value="604800">1 semana</option></select></label>
+            <div class="row end"><button class="primary">Guardar DHCP</button></div>
+          </form>
+          <form id="dns-form" class="form-grid mt">
+            <label>DNS principal<input name="dns1" required></label>
+            <label>DNS secundario<input name="dns2"></label>
+            <div class="row wrap span2">
+              <button type="button" class="small" data-dns="op">Los del operador</button>
+              <button type="button" class="small" data-dns="1.1.1.1,1.0.0.1">Cloudflare</button>
+              <button type="button" class="small" data-dns="8.8.8.8,8.8.4.4">Google</button>
+              <button type="button" class="small" data-dns="94.140.14.14,94.140.15.15">AdGuard (sin anuncios)</button>
+              <button type="button" class="small" data-dns="1.1.1.3,1.0.0.3">Cloudflare familiar</button>
+            </div>
+            <div class="row end span2"><button class="primary">Guardar DNS</button></div>
+          </form>
+        </section>
+        <section class="panel">
+          <h2>Firewall y UPnP</h2>
+          <p class="help">El firewall filtra lo que entra desde Internet. "Bajo" es lo normal en casa; "Alto" también restringe lo que sale y puede romper juegos o apps. El UPnP deja que los aparatos abran puertos solos: cómodo, pero menos seguro.</p>
+          <form id="fw-form">
+            <div class="field"><label>Nivel</label>
+              <select name="level"><option value="LOW">Bajo (recomendado)</option><option value="MEDIUM">Medio</option><option value="HIGH">Alto</option></select></div>
+            <label class="inline"><input type="checkbox" name="respond_to_ping"> Responder a ping desde Internet</label>
+            <label class="inline"><input type="checkbox" name="port_scan_detection"> Detectar escaneos de puertos</label>
+            <label class="inline"><input type="checkbox" name="block_fragments"> Bloquear paquetes fragmentados</label>
+            <label class="inline"><input type="checkbox" name="upnp"> UPnP (apertura automática de puertos)</label>
+            <div class="row end"><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ TELÉFONO Y USB ============ -->
+    <section class="tab" id="tab-telefono" hidden>
+      <div class="grid2">
+        <section class="panel">
+          <h2>Teléfono fijo</h2>
+          <p class="help">Tu línea fija va por Internet (VoIP) y se conecta al router. "Registrada" significa que funciona y puedes llamar.</p>
+          <div id="phone-lines"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Registro de llamadas</h2>
+              <p class="help">Llamadas hechas y recibidas en el teléfono fijo.</p>
+            </div>
+            <button id="calls-clear" class="small danger">Borrar todo</button>
+          </div>
+          <ul id="call-logs" class="list"></ul>
+        </section>
+      </div>
+      <div class="grid2">
+        <section class="panel">
+          <h2>USB</h2>
+          <p class="help">Si conectas un pendrive o disco al puerto USB del router, todos los aparatos de casa pueden acceder a él por la red (en Windows: <code>\\192.168.1.1</code> en el explorador de archivos).</p>
+          <div id="usb-info"></div>
+        </section>
+        <section class="panel">
+          <h2>Compartir y multimedia</h2>
+          <p class="help"><b>Compartir en la red (SMB)</b>: acceso a los archivos del USB desde ordenadores. <b>Servidor multimedia (DLNA)</b>: las teles y consolas ven las fotos, música y vídeos del USB.</p>
+          <form id="media-form">
+            <label class="inline"><input type="checkbox" name="smb"> Compartir el USB en la red (SMB)</label>
+            <label class="inline"><input type="checkbox" name="dlna"> Servidor multimedia DLNA</label>
+            <div class="field mt"><label>Nombre del servidor multimedia</label><input name="dlna_name" maxlength="64"></div>
+            <div class="row end"><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============ AUTOMATIZACIONES ============ -->
+    <section class="tab" id="tab-automatizaciones" hidden>
+      <section class="panel" id="notify-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Avisos al móvil</h2>
+            <p class="help">Con la app gratuita <b>ntfy</b> (Android/iPhone). Cada <b>lista</b> es un "tema" de ntfy al que se suscribe quien quiera: por ejemplo una para ti con todo y otra para la familia solo con caídas de Internet. En cada lista eliges qué categorías se avisan, con qué texto y prioridad, y de qué aparatos.</p>
+          </div>
+          <button id="notify-new" class="small">+ Nueva lista</button>
+        </div>
+        <div id="notify-tabs" class="list-tabs" role="tablist"></div>
+        <div id="notify-editor"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Automatizaciones</h2>
+            <p class="help">Tareas que el dashboard hace solo. El horario usa formato cron: <code>minuto hora día mes día-semana</code> (p. ej. <code>0 23 * * *</code> = todos los días a las 23:00; <code>30 21 * * 1-5</code> = de lunes a viernes a las 21:30). Solo se ejecutan mientras el dashboard esté encendido.</p>
+          </div>
+          <button id="auto-add" class="small">+ Nueva</button>
+        </div>
+        <div id="automations" class="auto-list"></div>
+        <div class="row end"><button id="auto-save" class="primary">Guardar automatizaciones</button></div>
+      </section>
+    </section>
+
+    <!-- ============ HERRAMIENTAS ============ -->
+    <section class="tab" id="tab-herramientas" hidden>
+      <div class="grid2">
+        <section class="panel">
+          <h2>Diagnóstico de conexión</h2>
+          <p class="help">Pruebas que hace <b>el propio router</b>. Si fallan aquí, el problema es la fibra u operador, no tu ordenador.<br>
+            <b>Ping</b>: ¿llego a esa dirección? · <b>Traceroute</b>: ¿por dónde pasa la conexión y dónde se corta? · <b>Nslookup</b>: ¿funciona el DNS (traducir nombres a IPs)?</p>
+          <form id="ping-form" class="row">
+            <input id="ping-host" value="1.1.1.1" aria-label="Dirección a probar">
+            <button type="submit">Ping</button>
+            <button type="button" id="traceroute-btn">Traceroute</button>
+            <button type="button" id="nslookup-btn">Nslookup</button>
+          </form>
+          <pre id="ping-out" class="out" hidden></pre>
+        </section>
+        <section class="panel">
+          <h2>Test de velocidad</h2>
+          <p class="help">Mide la velocidad real de tu fibra desde el router (no se ve afectada por el Wi‑Fi). Tarda alrededor de un minuto y durante el test Internet irá más lento.</p>
+          <button id="speedtest-btn" class="primary">Medir velocidad</button>
+          <div id="speedtest-out" class="mt"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Registro del router</h2>
+            <p class="help">Lo que el router va apuntando: conexiones Wi‑Fi, errores, reinicios… Lo más reciente arriba.</p>
+          </div>
+          <div class="row"><input id="log-filter" type="search" placeholder="Filtrar…" aria-label="Filtrar registro"><button id="log-btn">Cargar registro</button></div>
+        </div>
+        <pre id="log-out" class="out log" hidden></pre>
+      </section>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>Copia de seguridad y firmware</h2>
+          <p class="help">Descarga toda la configuración del router en un archivo. Guárdala antes de hacer cambios grandes. Para <b>restaurar</b> una copia o <b>actualizar el firmware</b> usa la web oficial (192.168.1.1 → Mantenimiento); el firmware normalmente lo actualiza MásMóvil solo.</p>
+          <div id="fw-info" class="muted small"></div>
+          <div class="row mt"><a id="backup-btn" class="button" href="/api/maintenance/backup">Descargar copia de seguridad</a></div>
+        </section>
+        <section class="panel">
+          <h2>Hora del router</h2>
+          <p class="help">El router se pone en hora solo con servidores de Internet (NTP). La hora importa para los horarios y bloqueos.</p>
+          <div id="time-info" class="muted small"></div>
+          <form id="ntp-form" class="form-grid mt">
+            <label>Servidor 1<input name="s1" required></label>
+            <label>Servidor 2<input name="s2"></label>
+            <div class="row end span2"><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+      </div>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>DNS dinámico</h2>
+          <p class="help">Tu IP pública puede cambiar. Con DNS dinámico tienes un nombre fijo (por ejemplo <code>micasa.ddns.net</code>) que siempre apunta a tu casa; útil si abres puertos para acceder desde fuera. Necesitas una cuenta en el servicio elegido.</p>
+          <form id="dyndns-form" class="form-grid">
+            <label class="inline span2"><input type="checkbox" name="enabled"> Activado <span id="dyndns-status" class="muted small"></span></label>
+            <label>Servicio<select name="service"></select></label>
+            <label>Dominio<input name="hostname" placeholder="micasa.ddns.net"></label>
+            <label>Usuario<input name="username" autocomplete="off"></label>
+            <label>Contraseña <span class="muted">(vacío = no cambiar)</span><input name="password" type="password" autocomplete="new-password"></label>
+            <div class="row end span2"><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+        <section class="panel">
+          <h2>Acceso remoto y syslog</h2>
+          <p class="help">Quién puede entrar a la configuración del router <b>desde Internet</b>. HTTP/HTTPS suele estar limitado a la red de MásMóvil (<span id="trusted-list"></span>) para su soporte técnico. SSH y Telnet permiten control total: déjalos apagados salvo que sepas lo que haces.</p>
+          <form id="remote-form">
+            <label class="inline"><input type="checkbox" name="http"> Web (HTTP)</label>
+            <label class="inline"><input type="checkbox" name="https"> Web segura (HTTPS)</label>
+            <label class="inline"><input type="checkbox" name="ssh"> SSH</label>
+            <label class="inline"><input type="checkbox" name="telnet"> Telnet</label>
+            <div class="row end"><button class="primary">Guardar</button></div>
+          </form>
+          <form id="syslog-form" class="form-grid mt">
+            <label class="inline span2"><input type="checkbox" name="enabled"> Enviar el registro a un servidor syslog de tu red</label>
+            <label>IP del servidor<input name="ip"></label>
+            <label>Puerto<input name="port" type="number" min="1" max="65535"></label>
+            <div class="row end span2"><button class="primary">Guardar</button></div>
+          </form>
+        </section>
+      </div>
+
+      <div class="grid2">
+        <section class="panel">
+          <h2>Contraseña del router</h2>
+          <p class="help">Cambia la contraseña con la que entras a 192.168.1.1 (usuario <b id="router-user"></b>). El dashboard se actualizará solo para seguir funcionando. ¡Apúntala!</p>
+          <form id="password-form" class="form-grid">
+            <label>Contraseña actual<input name="old" type="password" required autocomplete="current-password"></label>
+            <label>Nueva contraseña<input name="new" type="password" required minlength="8" autocomplete="new-password"></label>
+            <label>Repite la nueva<input name="new2" type="password" required minlength="8" autocomplete="new-password"></label>
+            <div class="row end span2"><button class="primary">Cambiar contraseña</button></div>
+          </form>
+        </section>
+        <section class="panel">
+          <h2>Dashboard</h2>
+          <p class="help">Reinicia este programa (no el router): útil tras cambiar el <code>.env</code> o si algo se queda raro. Tarda unos segundos y la página se recarga sola cuando está de vuelta.</p>
+          <p id="sys-info" class="muted small"></p>
+          <div class="row"><button id="dash-restart">Reiniciar dashboard</button></div>
+        </section>
+        <section class="panel danger-zone">
+          <h2>Zona peligrosa</h2>
+          <p class="help"><b>Reiniciar</b>: apaga y enciende el router; toda la casa sin Internet 2–3 minutos.<br>
+            <b>Restablecer de fábrica</b>: borra <b>toda</b> tu configuración (nombres y contraseñas de Wi‑Fi, puertos, IPs fijas, horarios…) y vuelve a la de la pegatina. Descarga antes una copia de seguridad.</p>
+          <div class="row wrap">
+            <button id="reboot" class="danger">Reiniciar router…</button>
+            <button id="factory-reset-btn" class="danger">Restablecer de fábrica…</button>
+          </div>
+        </section>
+      </div>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Explorador de xpaths</h2>
+            <p class="help">Cada ajuste del router tiene una "dirección" (xpath), como una ruta de carpetas. Escribe una y pulsa Leer; pulsa una rama del resultado para entrar en ella.</p>
+          </div>
+          <label class="inline expert-toggle"><input type="checkbox" id="expert-mode"> Modo experto (escritura)</label>
+        </div>
+        <form id="xpath-form" class="row">
+          <button type="button" id="xpath-up" title="Subir un nivel">↑</button>
+          <input id="xpath" value="Device" list="xpath-shortcuts" aria-label="xpath">
+          <datalist id="xpath-shortcuts">
+            <option value="Device/DeviceInfo"><option value="Device/Hosts/Hosts"><option value="Device/WiFi">
+            <option value="Device/NAT/PortMappings"><option value="Device/DHCPv4/Server"><option value="Device/DNS">
+            <option value="Device/Firewall"><option value="Device/Services"><option value="Device/Optical">
+          </datalist>
+          <button type="submit">Leer</button>
+        </form>
+        <div id="xpath-children" class="chips"></div>
+        <pre id="xpath-out" class="out" hidden></pre>
+
+        <div id="expert-panel" class="expert" hidden>
+          <div class="notice warn">Modo experto: escribes directamente en el router, sin las comprobaciones de las demás pantallas. Cada cambio queda en Eventos con el valor anterior para poder deshacerlo a mano.</div>
+          <div class="field">
+            <label for="expert-value">Valor (JSON: <code>"texto"</code>, <code>123</code>, <code>true</code>; para Añadir: <code>{"Tipo": {...}}</code>)</label>
+            <textarea id="expert-value" rows="4" spellcheck="false"></textarea>
+          </div>
+          <div class="row wrap">
+            <button type="button" id="expert-load">Copiar valor actual</button>
+            <button type="button" id="expert-set" class="primary">Escribir valor (setValue)</button>
+            <button type="button" id="expert-add">Añadir elemento (addChild)</button>
+            <button type="button" id="expert-delete" class="danger">Borrar elemento (deleteChild)</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Editor de horario -->
+  <dialog id="schedule-dialog">
+    <form method="dialog" class="dialog-body">
+      <h2 id="schedule-title">Horario</h2>
+      <p class="help">Pulsa o arrastra sobre las casillas. <span class="cell-demo denied"></span> = <span id="legend-off">sin Internet</span>, <span class="cell-demo"></span> = <span id="legend-on">con Internet</span>.</p>
+      <div class="row wrap">
+        <button type="button" data-preset="none">Todo permitido</button>
+        <button type="button" data-preset="all">Todo bloqueado</button>
+        <button type="button" data-preset="nights">Noches 23:00–7:00</button>
+        <button type="button" data-preset="school">Entre semana 9:00–14:00</button>
+      </div>
+      <div class="schedule-wrap"><table id="schedule-grid" class="schedule"></table></div>
+      <div class="row end">
+        <button value="cancel">Cancelar</button>
+        <button type="button" id="schedule-save" class="primary">Guardar horario</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Ficha de dispositivo -->
+  <dialog id="device-dialog">
+    <form method="dialog" class="dialog-body device-form" id="device-form">
+      <h2 id="device-title">Dispositivo</h2>
+      <p class="help mono" id="device-sub"></p>
+      <div class="form-grid">
+        <label>Nombre<input name="name" maxlength="64" autocomplete="off"></label>
+        <label>Tipo<input name="type" list="device-types" maxlength="40" autocomplete="off"></label>
+        <div class="span2">
+          <label class="inline"><input type="checkbox" name="fixed"> IP fija (siempre la misma)</label>
+          <input name="fixed_ip" inputmode="decimal" maxlength="15" placeholder="192.168.1.50" aria-label="IP fija">
+          <p class="help" id="device-ip-help"></p>
+        </div>
+        <div class="span2">
+          <span class="label">Grupos</span>
+          <div id="device-groups" class="group-chips"></div>
+          <div class="row"><input id="device-new-group" maxlength="40" placeholder="Nuevo grupo (p. ej. IoT)" aria-label="Nuevo grupo"><button type="button" class="small" id="device-add-group">Añadir</button></div>
+        </div>
+        <label class="span2">Notas<textarea name="notes" rows="4" maxlength="2000" placeholder="Lo que quieras recordar: dónde está, quién lo usa, cuándo lo compraste…"></textarea></label>
+      </div>
+      <div class="row end">
+        <button value="cancel" formnovalidate>Cancelar</button>
+        <button type="button" id="device-save" class="primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+  <datalist id="device-types"></datalist>
+
+  <!-- Menú ⋯ de cada fila -->
+  <div id="row-menu" class="menu" role="menu" hidden></div>
+
+  <!-- Filtro de aparatos de una regla de avisos -->
+  <dialog id="notify-filter-dialog">
+    <form method="dialog" class="dialog-body filter-form">
+      <h2 id="nf-title">¿De qué aparatos avisar?</h2>
+      <div class="radio-row">
+        <label class="inline"><input type="radio" name="mode" value="all"> De todos</label>
+        <label class="inline"><input type="radio" name="mode" value="include"> Solo de…</label>
+        <label class="inline"><input type="radio" name="mode" value="exclude"> De todos excepto…</label>
+      </div>
+      <div id="nf-pickers">
+        <span class="label">Grupos</span><div id="nf-groups" class="group-chips"></div>
+        <span class="label">Tipos</span><div id="nf-types" class="group-chips"></div>
+        <p class="help">Un aparato cuenta si está en cualquiera de los grupos o tiene cualquiera de los tipos marcados.</p>
+      </div>
+      <div class="row end">
+        <button value="cancel">Cancelar</button>
+        <button type="button" id="nf-ok" class="primary">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Importar CSV -->
+  <dialog id="import-dialog">
+    <form method="dialog" class="dialog-body import-form">
+      <h2>Importar dispositivos</h2>
+      <p class="help">Se buscan por MAC. Las columnas que no estén en el archivo no se tocan; una celda vacía sí borra ese dato. Revisa los cambios antes de aplicarlos.</p>
+      <div id="import-summary"></div>
+      <div id="import-changes" class="import-changes"></div>
+      <label class="inline" id="import-router-label"><input type="checkbox" id="import-router"> <span></span></label>
+      <div class="row end">
+        <button value="cancel">Cancelar</button>
+        <button type="button" id="import-apply" class="primary">Aplicar cambios</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- QR -->
+  <dialog id="qr-dialog">
+    <form method="dialog" class="dialog-body center">
+      <h2 id="qr-title">Wi‑Fi</h2>
+      <p class="help">Escanéalo con la cámara del móvil para conectarte sin escribir la contraseña.</p>
+      <img id="qr-img" alt="Código QR de la red Wi‑Fi" width="260" height="260">
+      <div class="row end"><button value="close" class="primary">Cerrar</button></div>
+    </form>
+  </dialog>
+
+  <script src="ui_edit.js"></script>
+  <script src="app.js"></script>
+  <script src="expert.js"></script>
+  <script src="network.js"></script>
+  <script src="wifi_adv.js"></script>
+  <script src="tools.js"></script>
+  <script src="phone_usb.js"></script>
+  <script src="extras.js"></script>
+  <script src="notify.js"></script>
+</body>
+</html>

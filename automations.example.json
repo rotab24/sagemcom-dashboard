@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Apagar Wi-Fi de invitados 2,4 GHz por la noche",
+    "enabled": false,
+    "cron": "0 23 * * *",
+    "action": "wifi",
+    "params": {"alias": "WL_GUEST2G4", "enabled": false}
+  },
+  {
+    "name": "Encender Wi-Fi de invitados 2,4 GHz por la mañana",
+    "enabled": false,
+    "cron": "0 9 * * *",
+    "action": "wifi",
+    "params": {"alias": "WL_GUEST2G4", "enabled": true}
+  },
+  {
+    "name": "Vigilar Internet cada 10 min",
+    "enabled": false,
+    "cron": "*/10 * * * *",
+    "action": "ping_watchdog",
+    "params": {"host": "1.1.1.1", "count": 4, "reboot_on_fail": false}
+  },
+  {
+    "name": "Reinicio semanal (domingo 5:00)",
+    "enabled": false,
+    "cron": "0 5 * * 0",
+    "action": "reboot",
+    "params": {}
+  }
+]
