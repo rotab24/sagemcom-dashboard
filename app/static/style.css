@@ -96,6 +96,10 @@ main { max-width: 1200px; margin: 0 auto; padding: var(--sp-5) var(--sp-5) var(-
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); gap: var(--sp-3); }
 .card, .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-4); }
 .big { font-size: var(--fs-2xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Cifras alineadas en columnas y listas que se comparan */
+table, .report-cards, .clients, .speed, .chart text { font-variant-numeric: tabular-nums; }
+h1, h2 { text-wrap: balance; }
+button, a, label, select, input[type=checkbox], input[type=radio] { touch-action: manipulation; }
 /* La línea de detalle de cada tarjeta llega con los datos: se reserva su alto para que no salte nada (CLS) */
 .card > .small { min-height: 1.45em; }
 .grid2 { display: grid; grid-template-columns: 3fr 2fr; gap: var(--sp-4); }
