@@ -2,12 +2,12 @@
   --bg: #f4f5f7;
   --surface: #ffffff;
   --text: #1c1f24;
-  --muted: #6b7280;
+  --muted: #5b6270;
   --border: #e3e5e9;
   --accent: #2563eb;
   --rx: #2563eb;
   --tx: #16a34a;
-  --ok: #16a34a;
+  --ok: #15803d;
   --bad: #dc2626;
   --warn: #b45309;
   --warn-bg: #fef3c7;
@@ -125,7 +125,7 @@ label.inline { display: flex; gap: 6px; align-items: center; margin-top: 10px; c
 }
 
 /* ---- fase 2: pestañas, dispositivos, wifi, diálogos ---- */
-:root { --denied: #dc2626; --denied-soft: #fde2e2; --allowed: #e8f5ec; --primary-text: #fff; }
+:root { --denied: #dc2626; --denied-soft: #fde2e2; --allowed: #edf7f0; --primary-text: #fff; }
 @media (prefers-color-scheme: dark) {
   :root { --denied: #ef4444; --denied-soft: #4a1d1d; --allowed: #183324; --primary-text: #0b1220; }
 }
