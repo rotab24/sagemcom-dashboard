@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light dark; /* casillas, barras de scroll y desplegables nativos siguen el modo */
   --bg: #f4f5f7;
   --surface: #ffffff;
   --text: #1c1f24;
