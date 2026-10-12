@@ -6,6 +6,7 @@
   --muted: #5b6270;
   --border: #e3e5e9;
   --accent: #2563eb;
+  --accent-hover: #1d4ed8;
   --rx: #2563eb;
   --tx: #16a34a;
   --ok: #15803d;
@@ -40,6 +41,8 @@
   --shadow-pop: 0 8px 24px rgb(0 0 0 / .2);
   --backdrop: rgb(0 0 0 / .45);
   --focus-ring: 2px solid var(--accent);
+  --control-h: 34px;     /* alto de campos y botones */
+  --control-h-sm: 28px;  /* versión pequeña */
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -49,6 +52,7 @@
     --muted: #9aa1ab;
     --border: #2b3038;
     --accent: #60a5fa;
+    --accent-hover: #93c5fd;
     --rx: #60a5fa;
     --tx: #4ade80;
     --ok: #4ade80;
@@ -145,7 +149,14 @@ tr.inactive td { color: var(--muted); }
 input, select, button {
   font: inherit; color: var(--text); background: var(--surface);
   border: 1px solid var(--border); border-radius: var(--r-md); padding: 6px 10px;
+  min-height: var(--control-h);
 }
+input[type=checkbox], input[type=radio], input[type=color], input[type=range] { min-height: 0; }
+input:hover:not(:disabled), select:hover:not(:disabled) { border-color: var(--muted); }
+button:active:not(:disabled) { background: var(--code-bg); }
+/* Botones que no son controles de formulario: sin alto mínimo de control */
+.chip, .var-chip, .chip-toggle, .list-tab, button.link, .menu button, .ui-inline-editor { min-height: 0; }
+.icon-btn { min-height: 24px; min-width: 24px; display: inline-grid; place-items: center; }
 .row input, .row select { flex: 1; min-width: 0; }
 button { cursor: pointer; }
 button:hover { border-color: var(--accent); }
@@ -191,8 +202,9 @@ label.inline { display: flex; gap: 6px; align-items: center; margin-top: 10px; c
 .notice button { margin-left: 8px; }
 
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--primary-text); }
-button.small, select.small { padding: 3px 8px; font-size: var(--fs-xs); }
-button:disabled { opacity: .5; cursor: default; }
+button.primary:hover:not(:disabled), button.primary:active:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+button.small, select.small { padding: 3px 8px; font-size: var(--fs-xs); min-height: var(--control-h-sm); }
+button:disabled { opacity: .5; cursor: not-allowed; }
 
 /* tabla de dispositivos */
 td .name { font-weight: 500; }
